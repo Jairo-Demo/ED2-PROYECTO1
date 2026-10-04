@@ -10,3 +10,10 @@
 - Se implementaron los métodos solicitados: validación de movimientos válidos, registro de movimientos, comprobación de estado de victoria (filas, columnas, diagonales) y condición de empate.
 - Todo el código respeta el estándar PEP 8 e incluye docstrings.
 - Se incluyó preventivamente el método `deshacer_movimiento` para el Backtracking futuro.
+
+## Semana 1 - Día 3: Interfaz Gráfica (Vista)
+- Se creó el archivo `view/gui_view.py` utilizando la librería Tkinter.
+- Se maquetó la clase `TresEnRayaView` dividiendo la ventana en dos marcos (Frames).
+- Marco Izquierdo: Matriz de 3x3 con objetos `tk.Button` para el tablero interactivo.
+- Marco Derecho: Panel lateral con `tk.Label` para mostrar el estado del juego (turnos, victorias).
+- Se implementó la separación estricta de responsabilidades (MVC): la vista no importa al modelo, simplemente usa una función callback (`set_click_callback`) para enviar eventos de clic al futuro Controlador.
