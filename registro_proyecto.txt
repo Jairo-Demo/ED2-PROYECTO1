@@ -3,3 +3,10 @@
 ## Semana 1 - Día 1: Configuración inicial y Arquitectura
 - Configuración del repositorio local.
 - Creación de la estructura de carpetas bajo el patrón MVC (model, view, controller).
+
+## Semana 1 - Día 2: Lógica del Juego (Modelo)
+- Se creó el archivo `model/game_model.py`.
+- Se implementó la clase `TresEnRayaModel` definiendo el tablero como una matriz 3x3.
+- Se implementaron los métodos solicitados: validación de movimientos válidos, registro de movimientos, comprobación de estado de victoria (filas, columnas, diagonales) y condición de empate.
+- Todo el código respeta el estándar PEP 8 e incluye docstrings.
+- Se incluyó preventivamente el método `deshacer_movimiento` para el Backtracking futuro.
