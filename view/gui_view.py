@@ -21,7 +21,7 @@ class TresEnRayaView:
         self._crear_interfaz()
 
     def _crear_interfaz(self):
-        # Marco izquierdo para el tablero (los botones)
+        # --- PANEL IZQUIERDO: Tablero ---
         frame_tablero = tk.Frame(self.root)
         frame_tablero.pack(side=tk.LEFT, padx=20, pady=20)
 
@@ -35,21 +35,22 @@ class TresEnRayaView:
                     text=" ", 
                     width=5, 
                     height=2,
-                    font=("Arial", 20), # Solo dejo la fuente un poco grande para que se vea bien la X y la O
+                    font=("Arial", 20),
                     command=lambda f=fila, c=col: self._on_boton_click(f, c)
                 )
                 # Lo ubico en la grilla visual
                 boton.grid(row=fila, column=col)
-                # Guardo el botón en mi matriz de memoria para poder cambiarle el texto después
+                # Guardo el botón en mi matriz de memoria
                 self.botones[fila][col] = boton
 
-        # Marco derecho para los mensajes (ej. "Turno de X", "Gano O")
-        frame_estado = tk.Frame(self.root)
-        frame_estado.pack(side=tk.RIGHT, padx=20)
+        # --- PANEL LATERAL DE ESTADO ---
+        # LabelFrame crea un cuadro visible con un título arriba
+        panel_lateral = tk.LabelFrame(self.root, text="Panel de Estado", font=("Arial", 10))
+        panel_lateral.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
 
-        # Etiqueta que mostrará el mensaje en texto
-        self.lbl_mensaje = tk.Label(frame_estado, text="Turno del Jugador: X", font=("Arial", 12))
-        self.lbl_mensaje.pack()
+        # Etiqueta adentro del panel que mostrará el mensaje ("Turno de X", etc)
+        self.lbl_mensaje = tk.Label(panel_lateral, text="Turno del Jugador: X", font=("Arial", 12))
+        self.lbl_mensaje.pack(pady=20, padx=10)
 
     def set_click_callback(self, callback):
         # El controlador usa este método para "enchufar" su función a esta vista
