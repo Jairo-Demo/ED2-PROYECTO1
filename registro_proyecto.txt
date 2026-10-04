@@ -1,0 +1,5 @@
+# Registro de Desarrollo - Proyecto: Tres en Raya con Minimax y ML
+
+## Semana 1 - Día 1: Configuración inicial y Arquitectura
+- Configuración del repositorio local.
+- Creación de la estructura de carpetas bajo el patrón MVC (model, view, controller).
