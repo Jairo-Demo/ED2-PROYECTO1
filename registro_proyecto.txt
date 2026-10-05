@@ -15,5 +15,12 @@
 - Se creó el archivo `view/gui_view.py` utilizando la librería Tkinter.
 - Se maquetó la clase `TresEnRayaView` dividiendo la ventana en dos marcos (Frames).
 - Marco Izquierdo: Matriz de 3x3 con objetos `tk.Button` para el tablero interactivo.
-- Marco Derecho: Panel lateral con `tk.Label` para mostrar el estado del juego (turnos, victorias).
+- Marco Derecho: Panel lateral con `tk.LabelFrame` para mostrar el estado del juego (turnos, victorias).
 - Se implementó la separación estricta de responsabilidades (MVC): la vista no importa al modelo, simplemente usa una función callback (`set_click_callback`) para enviar eventos de clic al futuro Controlador.
+
+## Semana 1 - Día 4: Coordinación e Interacción (Controlador)
+- Se creó el archivo `controller/game_controller.py`.
+- Se implementó la clase `GameController` encargada de instanciar la conexión entre el Modelo y la Vista.
+- Se desarrolló el método `manejar_clic` para procesar la interacción del usuario con las casillas.
+- Se implementó la lógica de flujo de turnos, actualización visual sincrónica del tablero y detección de final de partida (victoria o empate) al ocurrir un evento.
+- El código mantiene un enfoque didáctico con comentarios descriptivos paso a paso.
