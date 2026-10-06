@@ -24,3 +24,10 @@
 - Se desarrolló el método `manejar_clic` para procesar la interacción del usuario con las casillas.
 - Se implementó la lógica de flujo de turnos, actualización visual sincrónica del tablero y detección de final de partida (victoria o empate) al ocurrir un evento.
 - El código mantiene un enfoque didáctico con comentarios descriptivos paso a paso.
+
+## Semana 1 - Día 5: Integración y Pruebas (Humano vs Humano)
+- Se creó el archivo principal `main.py` en la raíz del proyecto.
+- Se instanciaron los tres componentes principales (Modelo, Vista, Controlador) logrando la integración final del patrón MVC.
+- Se realizaron pruebas exitosas de la modalidad "Humano vs Humano".
+- El juego valida correctamente los clics, los turnos, las victorias y los empates.
+- Con esto se da por finalizada exitosamente la Semana 1 del proyecto.
