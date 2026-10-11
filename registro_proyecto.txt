@@ -46,3 +46,11 @@
   - -10 para victoria humana.
   - 0 para empate o situaciones no terminales.
 - El diseño respeta el estándar PEP 8 con tipado y docstrings explicativos.
+
+## Semana 2 - Día 3: Algoritmo Minimax Recursivo y Contador de Nodos
+- Implementación del algoritmo `minimax` recursivo en `model/minimax_agent.py` siguiendo las especificaciones del Punto 5 del PDF.
+- Integración de los casos base para nodos terminales con penalización/recompensa por profundidad (`score - depth` / `score + depth`).
+- Implementación de la alternancia de turnos (MAX para la IA, MIN para el rival humano).
+- Aplicación estricta de Backtracking (`make_move` y `undo_move`) en cada paso recursivo.
+- Adición de métrica didáctica: contador acumulativo `nodes_evaluated` para registrar la cantidad de nodos explorados por el árbol de búsqueda.
+- Implementación del método selector `get_best_move(board)` para retornar la jugada óptima basada en el resultado de Minimax.
