@@ -18,6 +18,14 @@ class TresEnRayaModel:
             [' ', ' ', ' ']
         ]
 
+    def reiniciar(self) -> None:
+        """Limpia el tablero para iniciar una nueva partida."""
+        self.tablero = [
+            [' ', ' ', ' '],
+            [' ', ' ', ' '],
+            [' ', ' ', ' ']
+        ]
+
     def obtener_movimientos_validos(self) -> list:
         """
         Devuelve una lista con las coordenadas de las casillas vacías.

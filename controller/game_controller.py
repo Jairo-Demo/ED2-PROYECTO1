@@ -1,41 +1,93 @@
+from model.minimax_agent import MinimaxAgent
+
 class GameController:
-    def __init__(self, modelo, vista):
+    """
+    Controlador del juego (Patrón MVC).
+    Coordina los eventos del usuario, las respuestas de la IA Minimax
+    y la sincronización entre el modelo y la vista.
+    """
+
+    def __init__(self, modelo, vista, agente_ia=None):
         # Guardamos el modelo (reglas) y la vista (interfaz)
         self.modelo = modelo
         self.vista = vista
         
-        # El juego siempre empieza con la ficha X
+        # Agente Minimax (por defecto juega con 'O' contra el humano 'X')
+        self.agente_ia = agente_ia if agente_ia else MinimaxAgent(ai_player='O', human_player='X')
+        
+        # Variables de estado del juego
         self.turno_actual = 'X'
-        
-        # Aquí conectamos la interfaz con las reglas:
-        # Le decimos a la vista "cuando hagan clic, llama a esta función"
-        self.vista.set_click_callback(self.manejar_clic)
+        self.modo_juego = "Humano vs Humano"
+        self.juego_terminado = False
 
-    def manejar_clic(self, fila, col):
-        # 1. Le pedimos al modelo que intente poner la ficha en esa fila y columna
+        # Conectamos las funciones del controlador con los eventos de la vista
+        self.vista.set_click_callback(self.manejar_clic)
+        self.vista.set_modo_callback(self.cambiar_modo)
+        self.vista.set_reiniciar_callback(self.reiniciar_juego)
+
+    def manejar_clic(self, fila: int, col: int):
+        """Maneja el clic del usuario en una casilla del tablero."""
+        # Si el juego ya terminó o no es turno del humano, ignoramos el clic
+        if self.juego_terminado:
+            return
+
+        # 1. Movimiento del jugador humano ('X' o 'O' en modo PvP)
         movimiento_exitoso = self.modelo.hacer_movimiento(fila, col, self.turno_actual)
-        
-        # Si la casilla estaba vacía, el movimiento es exitoso (True)
-        if movimiento_exitoso:
-            # 2. Copiamos los datos de la matriz del modelo a los botones de la vista
-            self.vista.actualizar_tablero(self.modelo.tablero)
+        if not movimiento_exitoso:
+            return  # Casilla ya ocupada
+
+        # Actualizamos la pantalla con la nueva ficha
+        self.vista.actualizar_tablero(self.modelo.tablero)
+
+        # 2. Verificamos si este movimiento termina el juego
+        if self.modelo.verificar_victoria(self.turno_actual):
+            self.vista.actualizar_mensaje(f"¡GANÓ EL JUGADOR {self.turno_actual}!")
+            self.juego_terminado = True
+            return
+
+        elif self.modelo.es_empate():
+            self.vista.actualizar_mensaje("¡EMPATE! Tablero lleno.")
+            self.juego_terminado = True
+            return
+
+        # 3. Si no ha terminado el juego, cambiamos de turno
+        if self.modo_juego == "Humano vs Humano":
+            self.turno_actual = 'O' if self.turno_actual == 'X' else 'X'
+            self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")
+
+        elif self.modo_juego == "Humano vs IA Minimax":
+            # Turno de la IA Minimax
+            self.turno_actual = 'O'
+            self.vista.actualizar_mensaje("IA Minimax pensando...")
             
-            # 3. Revisamos si con este movimiento alguien ganó
-            if self.modelo.verificar_victoria(self.turno_actual):
-                self.vista.actualizar_mensaje(f"¡GANÓ EL JUGADOR {self.turno_actual}!")
-                # Desactivamos los clics para que no sigan jugando
-                self.vista.set_click_callback(None)
-            
-            # 4. Revisamos si el tablero se llenó y es un empate
-            elif self.modelo.es_empate():
-                self.vista.actualizar_mensaje("¡EMPATE! Tablero lleno.")
-            
-            # 5. Si no hay ganador ni empate, cambiamos de turno
-            else:
-                if self.turno_actual == 'X':
-                    self.turno_actual = 'O'
+            # Pedimos a la IA que calcule la mejor jugada explorando el árbol
+            mejor_movimiento = self.agente_ia.get_best_move(self.modelo)
+
+            if mejor_movimiento is not None:
+                self.modelo.make_move(mejor_movimiento, self.agente_ia.ai_player)
+                self.vista.actualizar_tablero(self.modelo.tablero)
+
+                # Verificamos si la IA ganó o empató
+                if self.modelo.check_winner(self.agente_ia.ai_player):
+                    self.vista.actualizar_mensaje("¡GANÓ LA IA (O)!")
+                    self.juego_terminado = True
+                elif self.modelo.es_empate():
+                    self.vista.actualizar_mensaje("¡EMPATE! Tablero lleno.")
+                    self.juego_terminado = True
                 else:
+                    # Le devolvemos el turno al humano
                     self.turno_actual = 'X'
-                
-                # Le pedimos a la vista que cambie el panel lateral para mostrar el nuevo turno
-                self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")
+                    self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")
+
+    def cambiar_modo(self, nuevo_modo: str):
+        """Cambia el modo de juego y reinicia la partida."""
+        self.modo_juego = nuevo_modo
+        self.reiniciar_juego()
+
+    def reiniciar_juego(self):
+        """Reinicia el tablero y las variables para una nueva partida."""
+        self.modelo.reiniciar()
+        self.turno_actual = 'X'
+        self.juego_terminado = False
+        self.vista.actualizar_tablero(self.modelo.tablero)
+        self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")

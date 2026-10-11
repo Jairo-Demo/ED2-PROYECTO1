@@ -54,3 +54,14 @@
 - Aplicación estricta de Backtracking (`make_move` y `undo_move`) en cada paso recursivo.
 - Adición de métrica didáctica: contador acumulativo `nodes_evaluated` para registrar la cantidad de nodos explorados por el árbol de búsqueda.
 - Implementación del método selector `get_best_move(board)` para retornar la jugada óptima basada en el resultado de Minimax.
+
+## Semana 2 - Día 4: Conexión de Minimax y Selector de Modos
+- Actualización de `view/gui_view.py`:
+  - Se agregó el selector visual de modos (Humano vs Humano / Humano vs IA Minimax) con `tk.Radiobutton`.
+  - Se integró el botón para reiniciar partidas interactivas (`btn_reiniciar`).
+- Actualización de `model/game_model.py`:
+  - Se implementó el método `reiniciar()` para limpiar la matriz del tablero.
+- Actualización de `controller/game_controller.py`:
+  - Se integró la instancia de `MinimaxAgent`.
+  - Se implementó el flujo automático de respuesta de la IA cuando el modo Minimax está activo: tras la jugada humana, el controlador invoca `get_best_move(board)` y aplica la jugada calculada.
+  - Sincronización continua de la vista con los estados de victoria, empate y turnos.
