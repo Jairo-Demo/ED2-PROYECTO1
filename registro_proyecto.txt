@@ -37,3 +37,12 @@
 - Implementación y formalización del mecanismo de Backtracking en `model/game_model.py`.
 - Se añadieron los métodos `make_move` y `undo_move` (junto con `get_available_moves` y `check_winner`) para permitir la simulación y reversión de jugadas en el tablero sin alterar partidas en curso.
 - Este mecanismo sienta las bases directas para la exploración recursiva del algoritmo Minimax.
+
+## Semana 2 - Día 2: Función de Evaluación Heurística
+- Creación del archivo `model/minimax_agent.py` y definición de la clase `MinimaxAgent`.
+- Implementación del constructor con variables de control para fichas de jugadores y contador de nodos evaluados (`nodes_evaluated`).
+- Implementación de la función heurística `evaluate(board)` para asignar valores numéricos a estados terminales:
+  - +10 para victoria de la IA.
+  - -10 para victoria humana.
+  - 0 para empate o situaciones no terminales.
+- El diseño respeta el estándar PEP 8 con tipado y docstrings explicativos.
