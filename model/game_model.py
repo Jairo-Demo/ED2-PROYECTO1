@@ -51,8 +51,8 @@ class TresEnRayaModel:
 
     def deshacer_movimiento(self, fila: int, col: int) -> None:
         """
-        Deshace un movimiento en el tablero (lo vuelve a dejar vacío).
-        Nota pedagógica: Fundamental para implementar el algoritmo de Backtracking en la Semana 2.
+        Deshace un movimiento en el tablero (vuelve a dejar la casilla vacía).
+        Mecanismo clave de Backtracking: permite a la IA retroceder en el árbol.
         
         Args:
             fila (int): Índice de la fila.
@@ -106,3 +106,29 @@ class TresEnRayaModel:
             bool: True si el tablero está lleno, False si aún hay espacio.
         """
         return len(self.obtener_movimientos_validos()) == 0
+
+    # ------------------------------------------------------------------
+    # Métodos de compatibilidad para el Agente Minimax (Semana 2)
+    # Permiten pasar 'move' como tupla (fila, col) exactamente como en el PDF
+    # ------------------------------------------------------------------
+
+    def make_move(self, move: tuple, player: str) -> bool:
+        """Aplica un movimiento en el tablero (recibe tupla de coordenadas)."""
+        fila, col = move
+        return self.hacer_movimiento(fila, col, player)
+
+    def undo_move(self, move: tuple) -> None:
+        """
+        Mecanismo de Backtracking: deshace un movimiento aplicado.
+        Restaura el estado previo del tablero para explorar otras ramas.
+        """
+        fila, col = move
+        self.deshacer_movimiento(fila, col)
+
+    def get_available_moves(self) -> list:
+        """Retorna las casillas disponibles para explorar jugadas."""
+        return self.obtener_movimientos_validos()
+
+    def check_winner(self, player: str) -> bool:
+        """Verifica si el jugador ganó (para evaluar estados terminales)."""
+        return self.verificar_victoria(player)

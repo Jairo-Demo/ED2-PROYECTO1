@@ -31,3 +31,9 @@
 - Se realizaron pruebas exitosas de la modalidad "Humano vs Humano".
 - El juego valida correctamente los clics, los turnos, las victorias y los empates.
 - Con esto se da por finalizada exitosamente la Semana 1 del proyecto.
+
+## Semana 2 - Día 1: Espacios de Estados y Mecanismo de Backtracking
+- Análisis teórico del espacio de estados del Tres en Raya (árbol de juego de orden variable, conceptualmente similar al árbol m-vías).
+- Implementación y formalización del mecanismo de Backtracking en `model/game_model.py`.
+- Se añadieron los métodos `make_move` y `undo_move` (junto con `get_available_moves` y `check_winner`) para permitir la simulación y reversión de jugadas en el tablero sin alterar partidas en curso.
+- Este mecanismo sienta las bases directas para la exploración recursiva del algoritmo Minimax.
