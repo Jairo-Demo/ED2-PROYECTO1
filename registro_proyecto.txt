@@ -65,3 +65,13 @@
   - Se integró la instancia de `MinimaxAgent`.
   - Se implementó el flujo automático de respuesta de la IA cuando el modo Minimax está activo: tras la jugada humana, el controlador invoca `get_best_move(board)` y aplica la jugada calculada.
   - Sincronización continua de la vista con los estados de victoria, empate y turnos.
+
+## Semana 2 - Día 5: Visualización de Métricas de Rendimiento en Tiempo Real
+- Actualización de `view/gui_view.py`:
+  - Se agregó la sección "Métricas de la IA" con etiquetas para `Nodos explorados` y `Tiempo (segundos)`.
+  - Se implementó el método `actualizar_metricas(nodos, tiempo_segundos)`.
+- Actualización de `controller/game_controller.py`:
+  - Se integró el módulo `time` para medir con precisión de microsegundos la latencia de respuesta del algoritmo Minimax.
+  - Sincronización en tiempo real entre el cálculo de Minimax, la métrica de nodos evaluados (`nodes_evaluated`) y la interfaz gráfica.
+  - Se implementó el reseteo de métricas al reiniciar partidas.
+- Con esto concluye exitosamente la Semana 2: Agente de IA Simbólica Minimax 100% operativo con Backtracking y métricas visibles.

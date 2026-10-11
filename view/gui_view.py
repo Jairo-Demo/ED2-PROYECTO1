@@ -5,6 +5,8 @@ class TresEnRayaView:
         # Guardo la ventana principal
         self.root = root
         self.root.title("Tres en Raya con Minimax (IA)")
+        self.root.geometry("520x360")
+        self.root.resizable(False, False)
         
         # Callbacks para avisarle al controlador cuando ocurren eventos
         self.click_callback = None
@@ -40,17 +42,17 @@ class TresEnRayaView:
                 boton.grid(row=fila, column=col)
                 self.botones[fila][col] = boton
 
-        # --- PANEL LATERAL DE ESTADO Y OPCIONES ---
+        # --- PANEL LATERAL DE CONTROL Y MÉTRICAS ---
         panel_lateral = tk.LabelFrame(self.root, text="Panel de Control", font=("Arial", 10))
-        panel_lateral.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
+        panel_lateral.pack(side=tk.RIGHT, padx=15, pady=15, fill=tk.BOTH, expand=True)
 
         # 1. Estado del juego
         self.lbl_mensaje = tk.Label(panel_lateral, text="Turno del Jugador: X", font=("Arial", 11, "bold"))
-        self.lbl_mensaje.pack(pady=10, padx=10)
+        self.lbl_mensaje.pack(pady=8, padx=5)
 
         # 2. Selector de modo de juego (Semana 2 - Día 4)
-        lbl_modo = tk.Label(panel_lateral, text="Modo de juego:", font=("Arial", 10))
-        lbl_modo.pack(anchor="w", padx=10, pady=(10, 0))
+        lbl_modo = tk.Label(panel_lateral, text="Modo de juego:", font=("Arial", 9, "bold"))
+        lbl_modo.pack(anchor="w", padx=10, pady=(5, 0))
 
         self.var_modo = tk.StringVar(value="Humano vs Humano")
 
@@ -72,14 +74,24 @@ class TresEnRayaView:
         )
         rb2.pack(anchor="w", padx=10)
 
-        # 3. Botón para reiniciar partida
+        # 3. Métricas de Rendimiento (Semana 2 - Día 5)
+        frame_metricas = tk.LabelFrame(panel_lateral, text="Métricas de la IA", font=("Arial", 9, "bold"))
+        frame_metricas.pack(fill=tk.X, padx=10, pady=8)
+
+        self.lbl_nodos = tk.Label(frame_metricas, text="Nodos explorados: 0", font=("Arial", 9), anchor="w")
+        self.lbl_nodos.pack(fill=tk.X, padx=5, pady=2)
+
+        self.lbl_tiempo = tk.Label(frame_metricas, text="Tiempo: 0.0000 s", font=("Arial", 9), anchor="w")
+        self.lbl_tiempo.pack(fill=tk.X, padx=5, pady=2)
+
+        # 4. Botón para reiniciar partida
         btn_reiniciar = tk.Button(
             panel_lateral, 
             text="Reiniciar Partida", 
             font=("Arial", 10),
             command=self._on_reiniciar_click
         )
-        btn_reiniciar.pack(pady=15, padx=10)
+        btn_reiniciar.pack(pady=8, padx=10)
 
     # Métodos de configuración de callbacks (MVC)
     def set_click_callback(self, callback):
@@ -113,3 +125,8 @@ class TresEnRayaView:
 
     def actualizar_mensaje(self, mensaje):
         self.lbl_mensaje.config(text=mensaje)
+
+    def actualizar_metricas(self, nodos: int, tiempo_segundos: float):
+        """Actualiza en tiempo real los nodos explorados y la latencia de la IA."""
+        self.lbl_nodos.config(text=f"Nodos explorados: {nodos:,}")
+        self.lbl_tiempo.config(text=f"Tiempo: {tiempo_segundos:.4f} s")

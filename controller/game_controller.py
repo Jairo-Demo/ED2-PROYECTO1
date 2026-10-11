@@ -1,10 +1,11 @@
+import time
 from model.minimax_agent import MinimaxAgent
 
 class GameController:
     """
     Controlador del juego (Patrón MVC).
-    Coordina los eventos del usuario, las respuestas de la IA Minimax
-    y la sincronización entre el modelo y la vista.
+    Coordina los eventos del usuario, las respuestas de la IA Minimax,
+    el cálculo de métricas de rendimiento y la sincronización con la vista.
     """
 
     def __init__(self, modelo, vista, agente_ia=None):
@@ -12,7 +13,7 @@ class GameController:
         self.modelo = modelo
         self.vista = vista
         
-        # Agente Minimax (por defecto juega con 'O' contra el humano 'X')
+        # Agente Minimax (juega con 'O' contra el humano 'X')
         self.agente_ia = agente_ia if agente_ia else MinimaxAgent(ai_player='O', human_player='X')
         
         # Variables de estado del juego
@@ -27,16 +28,15 @@ class GameController:
 
     def manejar_clic(self, fila: int, col: int):
         """Maneja el clic del usuario en una casilla del tablero."""
-        # Si el juego ya terminó o no es turno del humano, ignoramos el clic
         if self.juego_terminado:
             return
 
-        # 1. Movimiento del jugador humano ('X' o 'O' en modo PvP)
+        # 1. Movimiento del jugador humano
         movimiento_exitoso = self.modelo.hacer_movimiento(fila, col, self.turno_actual)
         if not movimiento_exitoso:
-            return  # Casilla ya ocupada
+            return
 
-        # Actualizamos la pantalla con la nueva ficha
+        # Actualizamos el tablero en pantalla
         self.vista.actualizar_tablero(self.modelo.tablero)
 
         # 2. Verificamos si este movimiento termina el juego
@@ -50,7 +50,7 @@ class GameController:
             self.juego_terminado = True
             return
 
-        # 3. Si no ha terminado el juego, cambiamos de turno
+        # 3. Si no ha terminado el juego, gestionamos el turno
         if self.modo_juego == "Humano vs Humano":
             self.turno_actual = 'O' if self.turno_actual == 'X' else 'X'
             self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")
@@ -59,9 +59,17 @@ class GameController:
             # Turno de la IA Minimax
             self.turno_actual = 'O'
             self.vista.actualizar_mensaje("IA Minimax pensando...")
-            
-            # Pedimos a la IA que calcule la mejor jugada explorando el árbol
+            self.vista.root.update()  # Forzamos a la ventana a actualizar el texto antes del cálculo
+
+            # Semana 2 - Día 5: Medición de rendimiento (tiempo y nodos explorados)
+            tiempo_inicio = time.time()
             mejor_movimiento = self.agente_ia.get_best_move(self.modelo)
+            tiempo_transcurrido = time.time() - tiempo_inicio
+            
+            nodos_explorados = self.agente_ia.nodes_evaluated
+
+            # Enviamos las métricas calculadas a la vista
+            self.vista.actualizar_metricas(nodos_explorados, tiempo_transcurrido)
 
             if mejor_movimiento is not None:
                 self.modelo.make_move(mejor_movimiento, self.agente_ia.ai_player)
@@ -75,7 +83,6 @@ class GameController:
                     self.vista.actualizar_mensaje("¡EMPATE! Tablero lleno.")
                     self.juego_terminado = True
                 else:
-                    # Le devolvemos el turno al humano
                     self.turno_actual = 'X'
                     self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")
 
@@ -85,9 +92,10 @@ class GameController:
         self.reiniciar_juego()
 
     def reiniciar_juego(self):
-        """Reinicia el tablero y las variables para una nueva partida."""
+        """Reinicia el tablero y limpia las métricas para una nueva partida."""
         self.modelo.reiniciar()
         self.turno_actual = 'X'
         self.juego_terminado = False
         self.vista.actualizar_tablero(self.modelo.tablero)
         self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")
+        self.vista.actualizar_metricas(0, 0.0)
