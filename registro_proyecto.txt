@@ -75,3 +75,15 @@
   - Sincronización en tiempo real entre el cálculo de Minimax, la métrica de nodos evaluados (`nodes_evaluated`) y la interfaz gráfica.
   - Se implementó el reseteo de métricas al reiniciar partidas.
 - Con esto concluye exitosamente la Semana 2: Agente de IA Simbólica Minimax 100% operativo con Backtracking y métricas visibles.
+
+## Semana 3 - Día 1: Simulador y Generación de Datos Sintéticos
+- Creación del archivo `model/ml_agent.py` y definición de la clase `MLAgent`.
+- Implementación del sistema de vectorización del tablero (`vectorizar_tablero`): convierte la matriz 3x3 en un vector de 9 casillas numéricas (0 = vacía, 1 = 'X', -1 = 'O').
+- Implementación de conversiones bidireccionales entre índices planos (0 a 8) y coordenadas matriciales (fila, col).
+- Desarrollo del motor de simulación automatizada `simular_partida`:
+  - Política epsilon-greedy para enriquecer la exploración de estados no convencionales.
+  - Minimax actúa como supervisor infalible calculando y etiquetando la jugada óptima (`jugada_optima`) para cada estado de tablero presentado.
+- Desarrollo del generador masivo `generar_dataset_sintetico`:
+  - Simulación exitosa de 1,000 partidas automatizadas combinando oponentes aleatorios, semi-inteligentes y óptimos.
+  - Recolección de más de 3,400 muestras brutas y consolidación de más de 500 estados únicos con su etiqueta óptima.
+- Implementación de la exportación a formato estándar `dataset_tres_en_raya.csv`.
