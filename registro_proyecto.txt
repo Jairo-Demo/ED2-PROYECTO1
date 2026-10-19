@@ -113,3 +113,17 @@
   - Extracción de reglas lógicas de decisión ("Si... Entonces...") con `sklearn.tree.export_text`, exportadas al archivo `reglas_arbol_decision.txt`.
   - Generación de diagrama visual de alta resolución del árbol con `sklearn.tree.plot_tree` y `matplotlib`, guardado en `arbol_decision.png`.
 - Pruebas exitosas de inferencia directa sobre tableros en curso.
+
+## Semana 3 - Día 4: Integración de la Inferencia ML en la Interfaz Gráfica (MVC)
+- Actualización de `view/gui_view.py`:
+  - Se añadió la 3ra opción al selector de modos: `Humano vs IA ML (Árbol)`.
+  - Ajuste de dimensiones de la ventana para una disposición visual equilibrada.
+- Actualización de `controller/game_controller.py`:
+  - Incorporación de la instancia `agente_ml` en el constructor.
+  - Implementación de la gestión de turnos para la modalidad Machine Learning:
+    - Inferencia instantánea mediante `agente_ml.predecir_jugada()`.
+    - Medición de latencia de inferencia con precisión de microsegundos.
+    - Sincronización del panel de métricas reflejando 0 nodos de árbol futuro explorados (decisión directa).
+- Actualización de `main.py`:
+  - Coordinación de los 3 componentes del patrón MVC: inicialización automática del modelo ML, instanciación de Minimax, conexión al controlador y lanzamiento del loop principal de Tkinter.
+  - El usuario puede alternar de forma fluida entre los 3 modos de juego en una misma interfaz interactiva.

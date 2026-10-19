@@ -1,21 +1,24 @@
 import time
 from model.minimax_agent import MinimaxAgent
+from model.ml_agent import MLAgent
 
 
 class GameController:
     """
     Controlador del juego (Patrón MVC).
-    Coordina los eventos del usuario, las respuestas de la IA Minimax,
-    el cálculo de métricas de rendimiento y la sincronización con la vista.
+    Coordina los eventos del usuario, las respuestas de la IA Minimax
+    y de la IA de Machine Learning, el cálculo de métricas de rendimiento
+    y la sincronización con la vista.
     """
 
-    def __init__(self, modelo, vista, agente_ia=None):
+    def __init__(self, modelo, vista, agente_ia=None, agente_ml=None):
         # Guardamos el modelo (reglas) y la vista (interfaz)
         self.modelo = modelo
         self.vista = vista
         
-        # Agente Minimax (juega con 'O' contra el humano 'X')
+        # Agentes inteligentes (juegan con 'O' contra el humano 'X')
         self.agente_ia = agente_ia if agente_ia else MinimaxAgent(ai_player='O', human_player='X')
+        self.agente_ml = agente_ml
         
         # Variables de estado del juego
         self.turno_actual = 'X'
@@ -79,6 +82,39 @@ class GameController:
                 # Verificamos si la IA ganó o empató
                 if self.modelo.check_winner(self.agente_ia.ai_player):
                     self.vista.actualizar_mensaje("¡GANÓ LA IA (O)!")
+                    self.juego_terminado = True
+                elif self.modelo.es_empate():
+                    self.vista.actualizar_mensaje("¡EMPATE! Tablero lleno.")
+                    self.juego_terminado = True
+                else:
+                    self.turno_actual = 'X'
+                    self.vista.actualizar_mensaje(f"Turno del Jugador: {self.turno_actual}")
+
+        elif self.modo_juego == "Humano vs IA Machine Learning":
+            # Turno de la IA Machine Learning (Árbol de Decisión)
+            self.turno_actual = 'O'
+            self.vista.actualizar_mensaje("IA ML pensando...")
+            self.vista.root.update()
+
+            if self.agente_ml is None or not self.agente_ml.is_trained:
+                self.vista.actualizar_mensaje("Error: Agente ML no entrenado")
+                return
+
+            # Semana 3 - Día 4: Medición de rendimiento (Inferencia instantánea con el Árbol)
+            tiempo_inicio = time.time()
+            mejor_movimiento = self.agente_ml.predecir_jugada(self.modelo.tablero)
+            tiempo_transcurrido = time.time() - tiempo_inicio
+
+            # El Árbol de Decisión infiere directamente sin explorar ramas futuras (0 nodos)
+            self.vista.actualizar_metricas(0, tiempo_transcurrido)
+
+            if mejor_movimiento is not None:
+                self.modelo.make_move(mejor_movimiento, self.agente_ml.ai_player)
+                self.vista.actualizar_tablero(self.modelo.tablero)
+
+                # Verificamos si la IA ML ganó o empató
+                if self.modelo.check_winner(self.agente_ml.ai_player):
+                    self.vista.actualizar_mensaje("¡GANÓ LA IA ML (O)!")
                     self.juego_terminado = True
                 elif self.modelo.es_empate():
                     self.vista.actualizar_mensaje("¡EMPATE! Tablero lleno.")

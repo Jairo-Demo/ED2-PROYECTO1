@@ -5,8 +5,8 @@ class TresEnRayaView:
     def __init__(self, root):
         # Guardo la ventana principal
         self.root = root
-        self.root.title("Tres en Raya con Minimax (IA)")
-        self.root.geometry("520x360")
+        self.root.title("Tres en Raya: Minimax & Machine Learning (MVC)")
+        self.root.geometry("560x390")
         self.root.resizable(False, False)
         
         # Callbacks para avisarle al controlador cuando ocurren eventos
@@ -51,7 +51,7 @@ class TresEnRayaView:
         self.lbl_mensaje = tk.Label(panel_lateral, text="Turno del Jugador: X", font=("Arial", 11, "bold"))
         self.lbl_mensaje.pack(pady=8, padx=5)
 
-        # 2. Selector de modo de juego (Semana 2 - Día 4)
+        # 2. Selector de modo de juego (3 Modos del proyecto)
         lbl_modo = tk.Label(panel_lateral, text="Modo de juego:", font=("Arial", 9, "bold"))
         lbl_modo.pack(anchor="w", padx=10, pady=(5, 0))
 
@@ -74,6 +74,15 @@ class TresEnRayaView:
             command=self._on_modo_cambiado
         )
         rb2.pack(anchor="w", padx=10)
+
+        rb3 = tk.Radiobutton(
+            panel_lateral, 
+            text="Humano vs IA ML (Árbol)", 
+            variable=self.var_modo, 
+            value="Humano vs IA Machine Learning",
+            command=self._on_modo_cambiado
+        )
+        rb3.pack(anchor="w", padx=10)
 
         # 3. Métricas de Rendimiento (Semana 2 - Día 5)
         frame_metricas = tk.LabelFrame(panel_lateral, text="Métricas de la IA", font=("Arial", 9, "bold"))
