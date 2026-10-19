@@ -19,6 +19,8 @@ if DIRECTORIO_RAIZ not in sys.path:
 # Librerías esenciales de Ciencia de Datos y Machine Learning
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
+import matplotlib.pyplot as plt
 
 # Importamos las clases del Modelo existentes
 from model.game_model import TresEnRayaModel
@@ -399,50 +401,216 @@ class MLAgent:
         }
 
 
+    # --------------------------------------------------------------------------
+    # MÉTODOS DEL DÍA 3: ENTRENAMIENTO DEL ÁRBOL DE DECISIÓN, REGLAS Y GRÁFICO
+    # --------------------------------------------------------------------------
+
+    def entrenar_arbol(
+        self,
+        criterion: str = 'entropy',
+        max_depth: Optional[int] = None,
+        random_state: int = 42
+    ) -> Dict[str, float]:
+        """
+        Entrena el modelo DecisionTreeClassifier con los datos de entrenamiento (X_train, y_train).
+        Evalúa el porcentaje de acierto (Accuracy) en datos de entrenamiento y prueba.
+        
+        Args:
+            criterion (str): Criterio de división ('entropy' para ganancia de información o 'gini').
+            max_depth (Optional[int]): Profundidad máxima del árbol (None para sin límite).
+            random_state (int): Semilla para garantizar reproducibilidad.
+            
+        Returns:
+            Dict[str, float]: Diccionario con la precisión de entrenamiento y prueba.
+        """
+        if self.X_train is None or self.y_train is None:
+            self.dividir_datos_entrenamiento()
+
+        print("\n[*] Entrenando Árbol de Decisión (DecisionTreeClassifier)...")
+        # Instanciamos el clasificador de árbol de decisión de Scikit-Learn
+        self.model = DecisionTreeClassifier(
+            criterion=criterion,
+            max_depth=max_depth,
+            random_state=random_state
+        )
+
+        # Entrenamos el árbol pasándole las entradas (X_train) y las respuestas correctas (y_train)
+        self.model.fit(self.X_train, self.y_train)
+        self.is_trained = True
+
+        # Evaluamos qué tan bien aprendió
+        precision_train = float(self.model.score(self.X_train, self.y_train))
+        precision_test = float(self.model.score(self.X_test, self.y_test))
+        self.accuracy = precision_test
+
+        print(f"[+] Entrenamiento completado con éxito:")
+        print(f"    - Criterio de división:           {criterion}")
+        print(f"    - Profundidad máxima alcanzada:   {self.model.get_depth()}")
+        print(f"    - Cantidad total de hojas (nodos):{self.model.get_n_leaves()}")
+        print(f"    - Precisión en Entrenamiento:     {precision_train * 100:.2f}%")
+        print(f"    - Precisión en Prueba (Test):     {precision_test * 100:.2f}%")
+
+        return {
+            "precision_train": precision_train,
+            "precision_test": precision_test,
+            "profundidad": self.model.get_depth(),
+            "hojas": self.model.get_n_leaves()
+        }
+
+    def predecir_jugada(self, tablero: List[List[str]]) -> Optional[Tuple[int, int]]:
+        """
+        Recibe el tablero 3x3 del juego actual y utiliza el Árbol de Decisión entrenado
+        para inferir de forma instantánea la mejor coordenada (fila, col) a jugar.
+        
+        Args:
+            tablero (List[List[str]]): Matriz 3x3 del estado actual del juego.
+            
+        Returns:
+            Optional[Tuple[int, int]]: Coordenada recomendada por el árbol de decisión.
+        """
+        if not self.is_trained or self.model is None:
+            raise ValueError("El modelo aún no ha sido entrenado. Ejecuta 'entrenar_arbol()' primero.")
+
+        # 1. Convertimos la matriz del tablero en DataFrame con las 9 características
+        vector_tablero = pd.DataFrame(
+            [self.vectorizar_tablero(tablero)],
+            columns=self.COLUMNAS_CARACTERISTICAS
+        )
+
+        # 2. El árbol infiere la casilla óptima (0 a 8) de manera instantánea
+        indice_predicho = int(self.model.predict(vector_tablero)[0])
+        fila, col = self.indice_a_coordenadas(indice_predicho)
+
+        # 3. Validación de seguridad: aseguramos que la casilla predicha esté vacía
+        if tablero[fila][col] == ' ':
+            return (fila, col)
+
+        # Si por alguna eventualidad predice una casilla ocupada, elegimos la mejor disponible
+        # según las probabilidades que calculó el árbol
+        probabilidades = self.model.predict_proba(vector_tablero)[0]
+        clases = list(self.model.classes_)
+        indices_ordenados = sorted(range(len(probabilidades)), key=lambda k: probabilidades[k], reverse=True)
+
+        for idx in indices_ordenados:
+            casilla_candidata = clases[idx]
+            f_cand, c_cand = self.indice_a_coordenadas(casilla_candidata)
+            if tablero[f_cand][c_cand] == ' ':
+                return (f_cand, c_cand)
+
+        # En caso extremo, selecciona la primera casilla vacía
+        for r in range(3):
+            for c in range(3):
+                if tablero[r][c] == ' ':
+                    return (r, c)
+
+        return None
+
+    def exportar_reglas_texto(self, ruta_archivo: Optional[str] = None) -> str:
+        """
+        Extrae y muestra las reglas lógicas 'Si... Entonces...' aprendidas por el árbol
+        mediante sklearn.tree.export_text (tal como solicita la guía del docente).
+        
+        Args:
+            ruta_archivo (Optional[str]): Si se especifica, guarda el texto en un archivo .txt.
+            
+        Returns:
+            str: Texto formateado con las reglas lógicas del árbol.
+        """
+        if not self.is_trained or self.model is None:
+            raise ValueError("Debes entrenar el modelo antes de exportar sus reglas.")
+
+        reglas = export_text(self.model, feature_names=self.COLUMNAS_CARACTERISTICAS)
+
+        if ruta_archivo:
+            with open(ruta_archivo, mode='w', encoding='utf-8') as f:
+                f.write(reglas)
+            print(f"[+] Reglas lógicas del Árbol de Decisión guardadas en: {ruta_archivo}")
+
+        return reglas
+
+    def exportar_arbol_grafico(self, ruta_imagen: str, max_depth: int = 3) -> None:
+        """
+        Genera y exporta una imagen gráfica (.png) de la estructura del árbol de decisión
+        utilizando sklearn.tree.plot_tree y matplotlib.
+        
+        Args:
+            ruta_imagen (str): Ruta completa donde se guardará la imagen (ej: arbol_decision.png).
+            max_depth (int): Nivel de profundidad visible para mantener el diagrama legible.
+        """
+        if not self.is_trained or self.model is None:
+            raise ValueError("Debes entrenar el modelo antes de graficar el árbol.")
+
+        print(f"[*] Generando visualización gráfica del Árbol de Decisión...")
+        plt.figure(figsize=(18, 10), dpi=200)
+
+        nombres_clases = [f"Casilla {i}" for i in range(9)]
+        plot_tree(
+            self.model,
+            max_depth=max_depth,
+            feature_names=self.COLUMNAS_CARACTERISTICAS,
+            class_names=[nombres_clases[c] for c in self.model.classes_],
+            filled=True,
+            rounded=True,
+            fontsize=8
+        )
+        plt.title(
+            f"Árbol de Decisión para Tres en Raya (Niveles iniciales 0 a {max_depth})",
+            fontsize=14,
+            weight='bold'
+        )
+
+        plt.savefig(ruta_imagen, bbox_inches='tight')
+        plt.close()
+        print(f"[+] Diagrama del Árbol de Decisión exportado exitosamente a: {ruta_imagen}")
+
+
 # ------------------------------------------------------------------------------
-# Script ejecutable directo para pruebas del Día 2
+# Script ejecutable directo para pruebas del Día 3
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     print("=" * 70)
-    print("  SEMANA 3 - DÍA 2: LIMPIEZA Y ESTRUCTURACIÓN DEL DATASET (PANDAS & ML)")
+    print("  SEMANA 3 - DÍA 3: ENTRENAMIENTO DEL ÁRBOL DE DECISIÓN Y VISUALIZACIÓN")
     print("=" * 70)
 
     agente_ml = MLAgent()
 
-    # Ruta estándar al archivo CSV generado en el Día 1
-    ruta_dataset = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "dataset_tres_en_raya.csv"
-    )
+    # Directorio base del proyecto
+    dir_proyecto = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ruta_dataset = os.path.join(dir_proyecto, "dataset_tres_en_raya.csv")
+    ruta_reglas = os.path.join(dir_proyecto, "reglas_arbol_decision.txt")
+    ruta_grafico = os.path.join(dir_proyecto, "arbol_decision.png")
 
-    # Si no existiera el archivo, generarlo preventivamente
-    if not os.path.exists(ruta_dataset):
-        print("[!] El archivo CSV no existía. Generando automáticamente...")
-        agente_ml.generar_dataset_sintetico(num_partidas=1000, ruta_salida_csv=ruta_dataset)
-
-    # 1. Cargar y limpiar los datos con Pandas
-    print("\n--- 1. Carga y Limpieza con Pandas ---")
-    df_limpio = agente_ml.cargar_y_limpiar_dataset(ruta_dataset)
-
-    print("\nPrimeras 5 filas del DataFrame:")
-    print(df_limpio.head())
-
-    # 2. Formatear y separar en X (Características) e y (Objetivo)
-    print("\n--- 2. Estructuración de Matrices (X, y) ---")
-    X, y = agente_ml.estructurar_caracteristicas_y_objetivo()
-    print("\nEjemplo de vector de entrada X (Fila 0):")
-    print(X.iloc[0].values)
-    print(f"Jugada óptima supervisada y (Fila 0): Casilla {y.iloc[0]}")
-
-    # 3. Dividir en conjuntos de Entrenamiento y Prueba
-    print("\n--- 3. Partición de Datos (Train / Test) ---")
+    # 1. Cargar y preparar datos (Día 2)
+    agente_ml.cargar_y_limpiar_dataset(ruta_dataset)
     agente_ml.dividir_datos_entrenamiento(test_size=0.2, random_state=42)
 
-    # 4. Resumen final de auditoría
-    print("\n--- 4. Resumen Estadístico de Distribución ---")
-    resumen = agente_ml.obtener_resumen_dataset()
-    print("Distribución de jugadas óptimas recomendadas por casilla (0 a 8):")
-    for casilla, cantidad in resumen["distribucion_jugadas"].items():
-        print(f"   Casilla {casilla}: {cantidad:3d} veces recomendada")
+    # 2. Entrenar el Árbol de Decisión (Día 3)
+    metricas = agente_ml.entrenar_arbol(criterion='entropy')
 
-    print("\n[OK] Semana 3 - Día 2 completado exitosamente y listo para el Árbol de Decisión.")
+    # 3. Exportar las reglas lógicas en texto legible
+    print("\n--- Exportación de Reglas Lógicas (export_text) ---")
+    reglas_texto = agente_ml.exportar_reglas_texto(ruta_archivo=ruta_reglas)
+    lineas_reglas = reglas_texto.strip().split("\n")
+    print(f"Mostrando las primeras 12 líneas de reglas aprendidas:")
+    for linea in lineas_reglas[:12]:
+        print(f"   {linea}")
+    print("   ... (ver el archivo completo en reglas_arbol_decision.txt)")
+
+    # 4. Exportar el árbol en formato gráfico (plot_tree)
+    print("\n--- Exportación Gráfica del Árbol (plot_tree) ---")
+    agente_ml.exportar_arbol_grafico(ruta_imagen=ruta_grafico, max_depth=3)
+
+    # 5. Prueba de inferencia en tiempo real
+    print("\n--- Prueba de Inferencia Rápida ---")
+    tablero_prueba = [
+        ['X', ' ', ' '],
+        [' ', 'O', ' '],
+        [' ', ' ', 'X']
+    ]
+    jugada_sugerida = agente_ml.predecir_jugada(tablero_prueba)
+    print("Tablero de prueba:")
+    for fila in tablero_prueba:
+        print(f"   {fila}")
+    print(f"-> El Árbol de Decisión predijo instantáneamente la jugada en: {jugada_sugerida}")
+
+    print("\n[OK] Semana 3 - Día 3 completado exitosamente.")
