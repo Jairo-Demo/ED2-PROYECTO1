@@ -87,3 +87,15 @@
   - Simulación exitosa de 1,000 partidas automatizadas combinando oponentes aleatorios, semi-inteligentes y óptimos.
   - Recolección de más de 3,400 muestras brutas y consolidación de más de 500 estados únicos con su etiqueta óptima.
 - Implementación de la exportación a formato estándar `dataset_tres_en_raya.csv`.
+
+## Semana 3 - Día 2: Limpieza y Estructuración del Dataset (Pandas y ML)
+- Integración de las librerías `pandas` y `scikit-learn` en `model/ml_agent.py`.
+- Implementación del método `cargar_y_limpiar_dataset`:
+  - Carga el archivo `dataset_tres_en_raya.csv` en un `DataFrame` de Pandas.
+  - Validación de integridad: verificación de columnas (`c0` a `c8` y `jugada_optima`), comprobación de ausencia de valores nulos (`dropna`), coerción a tipos enteros (`int`), filtrado de rangos numéricos válidos (-1, 0, 1 para casillas y 0 a 8 para objetivo) y eliminación de duplicados.
+- Implementación del método `estructurar_caracteristicas_y_objetivo`:
+  - Formateo de la matriz de características $X$ (dimensión $N \times 9$) con las 9 casillas del tablero.
+  - Formateo del vector objetivo $y$ (dimensión $N$) con la jugada óptima a predecir.
+- Implementación del método `dividir_datos_entrenamiento`:
+  - Partición formal usando `train_test_split`: 80% para entrenamiento (`X_train`, `y_train`) y 20% para evaluación independiente (`X_test`, `y_test`).
+- Auditoría estadística del dataset con el método `obtener_resumen_dataset`, verificando balance y cobertura en las 9 clases posibles.

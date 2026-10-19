@@ -11,15 +11,10 @@ Aquí es donde funciona el "Restaurante" completo.
 Juntamos al Cocinero (Modelo), el Plato (Vista) y el Mesero (Controlador).
 """
 
+
 if __name__ == "__main__":
-   
     root = tk.Tk()
-
     modelo = TresEnRayaModel()
-
     vista = TresEnRayaView(root)
-
     controlador = GameController(modelo, vista)
-
-    
     root.mainloop()

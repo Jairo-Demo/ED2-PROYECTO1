@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 class TresEnRayaView:
     def __init__(self, root):
         # Guardo la ventana principal

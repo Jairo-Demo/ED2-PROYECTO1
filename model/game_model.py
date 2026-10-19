@@ -3,6 +3,7 @@ Módulo que contiene la lógica principal del juego Tres en Raya (Modelo).
 Sigue el patrón de arquitectura MVC.
 """
 
+
 class TresEnRayaModel:
     """
     Representa el estado y las reglas del juego Tres en Raya.

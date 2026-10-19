@@ -1,6 +1,7 @@
 import time
 from model.minimax_agent import MinimaxAgent
 
+
 class GameController:
     """
     Controlador del juego (Patrón MVC).

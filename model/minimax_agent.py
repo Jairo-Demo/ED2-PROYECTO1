@@ -3,6 +3,7 @@ Módulo del Agente Minimax (Semana 2).
 Implementa la toma de decisiones basada en árboles de juego y evaluación heurística.
 """
 
+
 class MinimaxAgent:
     """
     Agente inteligente que utiliza el algoritmo Minimax con Backtracking
