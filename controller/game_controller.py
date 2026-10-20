@@ -26,11 +26,13 @@ class GameController:
 
         self.turno_actual = FICHA_X
         self.modo_juego = MODO_HUMANO
+        self.dificultad = "Difícil"
         self.juego_terminado = False
 
         # La vista avisa al controlador a través de estas funciones.
         self.vista.set_click_callback(self.manejar_clic)
         self.vista.set_modo_callback(self.cambiar_modo)
+        self.vista.set_dificultad_callback(self.cambiar_dificultad)
         self.vista.set_reiniciar_callback(self.reiniciar_juego)
 
     def manejar_clic(self, fila, col):
@@ -67,7 +69,8 @@ class GameController:
 
         inicio = time.perf_counter()
         if self.modo_juego == MODO_MINIMAX:
-            jugada = self.agente_minimax.get_best_move(self.modelo)
+            jugada = self.agente_minimax.get_best_move(
+                self.modelo, dificultad=self.dificultad)
             nodos_explorados = self.agente_minimax.nodes_evaluated
         else:
             # El árbol de decisión no explora ramas futuras: 0 nodos.
@@ -102,6 +105,11 @@ class GameController:
     def cambiar_modo(self, nuevo_modo):
         """Cambia el modo de juego y reinicia la partida."""
         self.modo_juego = nuevo_modo
+        self.reiniciar_juego()
+
+    def cambiar_dificultad(self, nueva_dificultad):
+        """Cambia el nivel de dificultad de la IA y reinicia la partida."""
+        self.dificultad = nueva_dificultad
         self.reiniciar_juego()
 
     def reiniciar_juego(self):

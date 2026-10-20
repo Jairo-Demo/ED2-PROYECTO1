@@ -22,13 +22,14 @@ class TresEnRayaView:
     def __init__(self, ventana):
         self.ventana = ventana
         self.ventana.title("Tres en Raya: Minimax & Machine Learning (MVC)")
-        self.ventana.geometry("560x390")
+        self.ventana.geometry("560x430")
         self.ventana.resizable(False, False)
         self.ventana.config(bg=self.COLOR_FONDO)
 
         # Funciones que registra el controlador para cada evento.
         self.click_callback = None
         self.modo_callback = None
+        self.dificultad_callback = None
         self.reiniciar_callback = None
 
         self.botones = [[None] * 3 for _ in range(3)]
@@ -104,6 +105,34 @@ class TresEnRayaView:
             )
             opcion.pack(anchor="w", padx=10)
 
+        # Selector de dificultad para IA Minimax.
+        etiqueta_dificultad = tk.Label(
+            panel_control,
+            text="Dificultad (Minimax):",
+            font=("Arial", 9, "bold"),
+            bg=self.COLOR_FONDO,
+            fg=self.COLOR_TEXTO
+        )
+        etiqueta_dificultad.pack(anchor="w", padx=10, pady=(6, 0))
+
+        marco_dificultad = tk.Frame(panel_control, bg=self.COLOR_FONDO)
+        marco_dificultad.pack(anchor="w", padx=10)
+
+        self.dificultad_seleccionada = tk.StringVar(value="Difícil")
+        opciones_dif = ("Fácil", "Medio", "Difícil")
+        for nivel in opciones_dif:
+            rb_dif = tk.Radiobutton(
+                marco_dificultad,
+                text=nivel,
+                variable=self.dificultad_seleccionada,
+                value=nivel,
+                bg=self.COLOR_FONDO,
+                fg=self.COLOR_TEXTO,
+                activebackground=self.COLOR_FONDO,
+                command=self._on_dificultad_cambiada
+            )
+            rb_dif.pack(side=tk.LEFT, padx=2)
+
         # Métricas de la IA.
         marco_metricas = tk.LabelFrame(
             panel_control,
@@ -158,6 +187,10 @@ class TresEnRayaView:
         """Función a llamar con el nombre del modo elegido."""
         self.modo_callback = callback
 
+    def set_dificultad_callback(self, callback):
+        """Función a llamar con el nivel de dificultad elegido."""
+        self.dificultad_callback = callback
+
     def set_reiniciar_callback(self, callback):
         """Función a llamar al pulsar 'Reiniciar Partida'."""
         self.reiniciar_callback = callback
@@ -171,6 +204,10 @@ class TresEnRayaView:
     def _on_modo_cambiado(self):
         if self.modo_callback is not None:
             self.modo_callback(self.modo_seleccionado.get())
+
+    def _on_dificultad_cambiada(self):
+        if self.dificultad_callback is not None:
+            self.dificultad_callback(self.dificultad_seleccionada.get())
 
     def _on_reiniciar_click(self):
         if self.reiniciar_callback is not None:
