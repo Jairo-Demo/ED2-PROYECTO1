@@ -271,7 +271,9 @@ class MLAgent:
             feature_names=self.COLUMNAS_CASILLAS,
             class_names=[f"Casilla {c}" for c in self.modelo.classes_],
             filled=True, rounded=True, fontsize=8)
-        plt.title(f"Árbol de decisión (niveles 0 a {max_depth})")
+        plt.title(f"Árbol de Decisión para Tres en Raya "
+                  f"(Niveles iniciales 0 a {max_depth})",
+                  fontsize=14, weight='bold')
         plt.savefig(ruta_imagen, bbox_inches='tight')
         plt.close()
 
